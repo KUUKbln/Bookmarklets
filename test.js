@@ -1,0 +1,1 @@
+function t(I) = 0;
