@@ -14,6 +14,13 @@
  * - Prefix "bookmarklet_"
  * - Danach: CamelCase für den Funktionsteil
  * - Beispiel: bookmarklet_exampleName
+ * 
+ * WICHTIG:
+ * Der ausführliche Kommentar in jeder Bookmarklet-Datei enthält Autor und Datum,
+ * beschreibt die Funktionsweise und diente als Vorgabe zur Programmierung.
+ * Dieser Kommentar muss beim Erstellen oder Umschreiben vollständig erhalten bleiben. 
+ * 
+ * KI-generierter Code wird durch Name und Version kenntlich gemacht und unterzeichnet.
  */
 
 
