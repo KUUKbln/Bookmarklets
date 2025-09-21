@@ -62,7 +62,9 @@ bookmarklet_ytCopyTranscript.href = bookmarklet_ytCopyTranscript.href || functio
   }
 
   code = `(${code})();`;
-  return `javascript:${encode ? encodeURIComponent(code) : code}`;
+  code =`javascript:${encode ? encodeURIComponent(code) : code}`;
+  alert("href: \r"+code);
+  return code;
 }
 
 export default bookmarklet_ytCopyTranscript;
