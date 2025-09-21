@@ -1,44 +1,66 @@
 /**
- * Bookmarklet Template
+ * bookmarklet-template.js
  *
+ * Objektstruktur für Bookmarklets.
+ * Beinhaltet Metadaten, die ausführbare Funktion `run()` 
+ * sowie eine `href()`-Methode zur Erzeugung eines javascript:-Links.
  *
- * Definiert ein Bookmarklet-Objekt mit Struktur:
- * - label: { title, short, description } – Metadaten für Anzeige, Tooltip, Linktext
- * - run(): Funktion, die den Bookmarklet-Code enthält
- * - href(): gibt eine bookmarklet-fähige URL zurück (als javascript:...), wird ergänzt falls nicht definiert
+ * Optionen in `href()`:
+ *  - encode: URI-Encoding aktivieren (Standard: true)
+ *  - stripComments: JS-Kommentare entfernen (Standard: true)
+ *  - collapseWhitespace: überflüssige Leerzeichen zusammenfassen (Standard: true)
+ *  - removeNewlines: Zeilenumbrüche und Tabs entfernen (Standard: true)
+ *  - debug: Wenn true, wird der generierte Code (unkodiert) in der Konsole ausgegeben
  *
- * href() wird nur ergänzt, falls noch nicht definiert,
- * und erzeugt die Bookmarklet-JavaScript-URL.
- *
- * Objektname-Konvention:
- * - Prefix "bookmarklet_"
- * - Danach: CamelCase für den Funktionsteil
- * - Beispiel: bookmarklet_exampleName
- * 
- * WICHTIG:
- * Der ausführliche Kommentar in jeder Bookmarklet-Datei enthält Autor und Datum,
- * beschreibt die Funktionsweise und diente als Vorgabe zur Programmierung.
- * Dieser Kommentar muss beim Erstellen oder Umschreiben vollständig erhalten bleiben. 
- * 
- * KI-generierter Code wird durch Name und Version kenntlich gemacht und unterzeichnet.
+ * Hinweis: KI-generierter Code wird kenntlich gemacht (Name und Version) und unterzeichnet.
  */
 
-
-const bookmarklet_template = {
-  label: {
-    title: "Bookmarklet Titel",
-    short: "kurz",
-    description: "Kurze Beschreibung des Bookmarklets"
+const BookmarkletTemplate = {
+  meta: {
+    id: 'bookmarklet_template',
+    title: 'Beispiel-Bookmarklet',
+    short: 'TEMPLATE',
+    description: 'Template für neue Bookmarklets'
   },
 
   run() {
-    // Bookmarklet-Code hier einfügen
+    alert("Hello from template!");
   }
 };
 
-// href nur ergänzen, falls nicht bereits definiert
-bookmarklet_template.href = bookmarklet_template.href || function({ encode = true } = {}) {
-  const code = `(${this.run.toString()})();`;
-  return `javascript:${encode ? encodeURIComponent(code) : code}`;
-};
+// Füge href() Methode nur hinzu, wenn nicht bereits vorhanden
+if (!BookmarkletTemplate.href) {
+  BookmarkletTemplate.href = function ({
+    encode = true,
+    stripComments = true,
+    collapseWhitespace = true,
+    removeNewlines = true,
+    debug = false
+  } = {}) {
+    let code = this.run.toString();
 
+    if (stripComments) {
+      code = code.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
+    }
+
+    if (removeNewlines) {
+      code = code.replace(/[\n\r\t]+/g, '');
+    }
+
+    if (collapseWhitespace) {
+      code = code.replace(/\s{2,}/g, ' ');
+    }
+
+    const wrapped = `(${code})();`;
+
+    if (debug) {
+      console.debug("[Bookmarklet Debug] Code:\n", wrapped);
+    }
+
+    return `javascript:${encode ? encodeURIComponent(wrapped) : wrapped}`;
+  };
+}
+
+// export default BookmarkletTemplate;  // für ES Module
+
+// ChatGPT (GPT-4o) – 2025-09-21
