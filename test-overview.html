@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bookmarklets Übersicht (Test)</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1em; }
+    a.bookmarklet {
+      display: inline-block;
+      margin: 0.5em 1em 0.5em 0;
+      padding: 0.3em 0.6em;
+      background: #0b79d0;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    a.bookmarklet:hover {
+      background: #095a9d;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bookmarklets Übersicht (Test)</h1>
+  <nav id="bookmarklets-list"></nav>
+
+  <script type="module">
+    import bookmarkletYtCopyTranscript from './test-bookmarklet-yt-copy-transcript.js';
+    import bookmarkletCodesnippetsLocalstorage from './test-bookmarklet-codesnippets-localstorage.js';
+
+    const bookmarklets = [
+      bookmarkletYtCopyTranscript,
+      bookmarkletCodesnippetsLocalstorage
+    ];
+
+    const container = document.getElementById('bookmarklets-list');
+
+    bookmarklets.forEach(bm => {
+      const a = document.createElement('a');
+      a.href = bm.href();
+      a.className = 'bookmarklet';
+      a.title = `${bm.label.title}\n${bm.label.description}`;
+      a.textContent = bm.label.short;
+      a.target = '_blank';  // optional, öffnet Bookmarklet in neuem Tab, meist aber nicht nötig
+      container.appendChild(a);
+    });
+  </script>
+</body>
+</html>
