@@ -1,29 +1,37 @@
 /**
  * Bookmarklet Template
  *
- * Definiert ein Bookmarklet-Objekt mit:
- * - label: { title, text, description } für UI und Tooltips
- * - run(): Funktion mit Bookmarklet-Code
+ *
+ * Definiert ein Bookmarklet-Objekt mit Struktur:
+ * - label: { title, short, description } – Metadaten für Anzeige, Tooltip, Linktext
+ * - run(): Funktion, die den Bookmarklet-Code enthält
+ * - href(): gibt eine bookmarklet-fähige URL zurück (als javascript:...), wird ergänzt falls nicht definiert
  *
  * href() wird nur ergänzt, falls noch nicht definiert,
  * und erzeugt die Bookmarklet-JavaScript-URL.
+ *
+ * Objektname-Konvention:
+ * - Prefix "bookmarklet_"
+ * - Danach: CamelCase für den Funktionsteil
+ * - Beispiel: bookmarklet_exampleName
  */
 
-const BookmarkletTemplate = {
+
+const bookmarklet_template = {
   label: {
     title: "Bookmarklet Titel",
-    text: "kurz",
-    description: "Kurze Beschreibung"
+    short: "kurz",
+    description: "Kurze Beschreibung des Bookmarklets"
   },
 
   run() {
-    // Bookmarklet-Code hier
+    // Bookmarklet-Code hier einfügen
   }
 };
 
-BookmarkletTemplate.href = BookmarkletTemplate.href || function({ encode = true } = {}) {
+// href nur ergänzen, falls nicht bereits definiert
+bookmarklet_template.href = bookmarklet_template.href || function({ encode = true } = {}) {
   const code = `(${this.run.toString()})();`;
   return `javascript:${encode ? encodeURIComponent(code) : code}`;
 };
 
-export default BookmarkletTemplate;
