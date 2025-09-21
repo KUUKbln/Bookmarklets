@@ -41,10 +41,29 @@ const bookmarklet_ytCopyTranscript = {
   }
 };
 
-bookmarklet_ytCopyTranscript.href = bookmarklet_ytCopyTranscript.href || function({ encode = true } = {}) {
-  const code = `(${this.run.toString()})();`;
+bookmarklet_ytCopyTranscript.href = bookmarklet_ytCopyTranscript.href || function({
+  encode = true,
+  stripComments = true,
+  collapseWhitespace = true,
+  removeNewlines = true
+} = {}) {
+  let code = this.run.toString();
+
+  if (stripComments) {
+    code = code.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
+  }
+
+  if (removeNewlines) {
+    code = code.replace(/[\n\r]/g, '');
+  }
+
+  if (collapseWhitespace) {
+    code = code.replace(/\s+/g, ' ');
+  }
+
+  code = `(${code})();`;
   return `javascript:${encode ? encodeURIComponent(code) : code}`;
-};
+}
 
 export default bookmarklet_ytCopyTranscript;
 
