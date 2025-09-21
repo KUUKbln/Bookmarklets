@@ -48,7 +48,7 @@ bookmarklet_ytCopyTranscript.href = bookmarklet_ytCopyTranscript.href || functio
   removeNewlines = true
 } = {}) {
   let code = this.run.toString();
-
+  alert("run.toString:\r"+code);
   if (stripComments) {
     code = code.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
   }
@@ -60,7 +60,7 @@ bookmarklet_ytCopyTranscript.href = bookmarklet_ytCopyTranscript.href || functio
   if (collapseWhitespace) {
     code = code.replace(/\s+/g, ' ');
   }
-
+alert("collapseWhitespace:\r"+code);
   code = `(${code})();`;
   code =`javascript:${encode ? encodeURIComponent(code) : code}`;
   alert("href: \r"+code);
