@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bookmarklet Testseite</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+    }
+    a.bookmarklet {
+      display: inline-block;
+      margin: 1em 0;
+      padding: 0.6em 1.2em;
+      background: #0078d7;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    a.bookmarklet:hover {
+      background: #005ea2;
+    }
+  </style>
+</head>
+<body>
+  <h1>📘 Bookmarklet Test</h1>
+  <div id="bookmarklet-container">Lade Bookmarklet …</div>
+
+  <script src="https://kuukbln.github.io/Bookmarklets/bookmarklet-test.js"></script>
+  <script>
+    window.addEventListener('load', () => {
+      const container = document.getElementById('bookmarklet-container');
+
+      if (typeof window.bookmarklet_test === 'object' && typeof window.bookmarklet_test.href === 'function') {
+        const bm = window.bookmarklet_test;
+        const a = document.createElement('a');
+        a.className = 'bookmarklet';
+        a.href = bm.href(); // ← generierter Bookmarklet-Code
+        a.title = `${bm.meta?.title || 'Bookmarklet'}: ${bm.meta?.description || ''}`;
+        a.textContent = bm.meta?.short || bm.meta?.title || 'Bookmarklet';
+        a.target = '_blank';
+        container.innerHTML = '';
+        container.appendChild(a);
+      } else {
+        container.textContent = "⚠️ Bookmarklet nicht gefunden oder falsch definiert.";
+      }
+    });
+  </script>
+</body>
+</html>
