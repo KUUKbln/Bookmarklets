@@ -9,23 +9,23 @@
 
 window.bookmarklets = window.bookmarklets || {};
 
-const bookmarklet_test= {
+const bookmarklet_test2= {
   meta: {
     id: 'bookmarklet_helloWorld',
     title: 'Hallo-Welt-Bookmarklet',
-    short: 'He',
+    short: 'HW',
     description: 'Zeigt eine einfache Begrüßung an.'
   },
 
   run() {
-    alert("Hallo Welt");
+    alert("Hallo Welt2");
     console.log("Bookmarklet wurde ausgeführt.");
-    document.body.style.backgroundColor = "#ffe";
+    document.body.style.backgroundColor = "#f0f";
   }
 };
 
-if (!bookmarklet_test.href) {
-  bookmarklet_test.href = function ({
+if (!bookmarklet_test2.href) {
+  bookmarklet_test2.href = function ({
     encode = true,
     stripComments = true,
     collapseWhitespace = true,
@@ -62,6 +62,6 @@ if (!bookmarklet_test.href) {
   };
 }
 
-window.bookmarklets["test"] = bookmarklet_test;
+window.bookmarklets["test2"] = bookmarklet_test2;
 //export default window.bookmarklet_test; // Optional für ES Modules
 

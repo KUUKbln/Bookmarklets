@@ -1,25 +1,97 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <link rel="icon" href="x220.ico" type="image/x-icon">
-  <title>Bookmarklets</title>
+  <meta charset="UTF-8" />
+  <title>📘 Bookmarklet Testseite</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background: #f9f9f9;
+    }
+    h1 {
+      margin-bottom: 1em;
+    }
+    #bookmarklet-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+    }
+    a.bookmarklet {
+      display: inline-block;
+      padding: 0.6em 1.2em;
+      background: #0078d7;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    a.bookmarklet:hover {
+      background: #005ea2;
+    }
+    .meta {
+      margin-top: 0.3em;
+      font-size: 0.9em;
+      color: #555;
+    }
+    .bookmarklet-block {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
 </head>
 <body>
-  <h1>Bookmarklets</h1>
-  <ul>
-    <li>
-      <a href="javascript:(function(){alert('Hallo Welt!');})();">Alert „Hallo Welt“</a><br>
-      Zeigt eine einfache Meldung an.
-    </li>
-    <li>
-      <a href="javascript:(function(){var colors=['red','green','blue','yellow','purple','orange','pink','cyan','lime'];document.body.style.background=colors[Math.floor(Math.random()*colors.length)];})();">Hintergrund: Zufällige Farbe</a><br>
-      Setzt eine zufällig gewählte Vollfarbe als Seitenhintergrund.
-    </li>
-    <li>
-      <a href="javascript:(function(){window.open(location.href);})();">Seite in neuem Tab</a><br>
-      Öffnet die aktuelle Seite in einem neuen Tab.
-    </li>
-  </ul>
+  <h1>📘 Bookmarklet Test</h1>
+  <p>Hier siehst du alle aktuell geladenen Bookmarklets:</p>
+
+  <div id="bookmarklet-container">
+    <p>📦 Lade Bookmarklets …</p>
+  </div>
+
+  <!-- Dein Bookmarklet-Script -->
+  <script src="bookmarklet-template.js"></script>
+  <script src="bookmarklet-snippets.js"></script>
+  <script src="bookmarklet-test.js"></script>
+  <script src="bookmarklet-test2.js"></script>
+  
+  
+  <!-- Bookmarklet-Liste generieren -->
+  <script>
+    window.addEventListener("load", () => {
+      const container = document.getElementById("bookmarklet-container");
+      container.innerHTML = "";
+
+      if (!window.bookmarklets || Object.keys(window.bookmarklets).length === 0) {
+        container.textContent = "⚠️ Keine Bookmarklets gefunden.";
+        return;
+      }
+
+      for (const key in window.bookmarklets) {
+        const bm = window.bookmarklets[key];
+
+        if (!bm || typeof bm.href !== 'function') continue;
+
+        const block = document.createElement("div");
+        block.className = "bookmarklet-block";
+
+        const a = document.createElement("a");
+        a.className = "bookmarklet";
+        a.href = bm.href();
+        a.textContent = bm.meta?.short || bm.meta?.title || key;
+        a.title = `${bm.meta?.title || key}: ${bm.meta?.description || ''}`;
+        //a.target = "_blank";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = bm.meta?.description || '';
+
+        block.appendChild(a);
+        block.appendChild(meta);
+        container.appendChild(block);
+      }
+    });
+  </script>
 </body>
 </html>
+
