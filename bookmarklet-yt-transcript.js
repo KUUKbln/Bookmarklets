@@ -8,8 +8,9 @@
 const YouTubeTranscriptBookmarklet = {
   meta: {
     name: "YouTube Transcript Extractor",
+    short: "YTTranscript"
     description: "Extrahiert das Transkript mit Zeitmarken in eckigen Klammern von YouTube und kopiert es in die Zwischenablage.",
-    version: "1.0.0",
+    version: "1.0.0",r
     author: "DeinName",
     site: "https://www.youtube.com"
   },
