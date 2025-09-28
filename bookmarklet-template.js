@@ -15,7 +15,7 @@
  * ➕ Empfohlene Vorgehensweise:
  * 1. Dieses Template kopieren und `id`, `title`, `description` anpassen
  * 2. Die `run()`-Methode mit Funktionalität füllen
- * 3. `bookmarklet.href()` aufrufen für den Bookmarklet-Link
+ * 3. Das Bookmarklet-Objekt registrieren im globalen Namespace window.bookmarklets[]; key=short
  * 
  * ➕ Regeln aus `README-AI.md` beachten:
  * - Kommentar-Kopf mit Zweck, Herkunft (KI/Human), Datum
