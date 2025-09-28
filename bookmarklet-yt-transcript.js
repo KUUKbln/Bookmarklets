@@ -74,4 +74,4 @@ const YouTubeTranscriptCopy = {
 };
 
 // Starte das Bookmarklet
-YouTubeTranscriptCopy.run();
+// YouTubeTranscriptCopy.run();
