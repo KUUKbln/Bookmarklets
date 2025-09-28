@@ -1,21 +1,24 @@
 /**
- * YouTube Transcript Copy Bookmarklet
- *
- * Extrahiert sichtbare Transkript-Segmente mit Zeitmarken (in eckigen Klammern)
- * und kopiert den Text in die Zwischenablage.
- *
- * Erstellt mit ChatGPT (GPT-4o) – 2025-09-29
+ * @name YouTube Transcript Extractor
+ * @version 1.0.0
+ * @description Extrahiert sichtbare YouTube-Transkripte mit Zeitmarken in eckigen Klammern und kopiert sie in die Zwischenablage.
+ * @author 
+ * @license MIT
+ * @source https://github.com/KUUKbln/Bookmarklets
+ * @date 2025-09-29
+ * @generated-by ChatGPT (GPT-4o)
  */
+
 window.bookmarklets = window.bookmarklets || {};
 
 const YT_Transcript = {
   meta: {
     id: 'YT_Transcript',
-    title: 'YouTube Transcript Extractor',
+    name: 'YouTube Transcript Extractor',
     short: 'YTTranscript',
-    description: 'Extrahiert sichtbare Transkripte mit Zeitmarken und kopiert sie in die Zwischenablage.',
+    description: 'Extrahiert das Transkript mit Zeitmarken in eckigen Klammern von YouTube und kopiert es in die Zwischenablage.',
     version: '1.0.0',
-    author: 'DeinName',
+    author: '',
     site: 'https://www.youtube.com'
   },
 
@@ -62,13 +65,9 @@ const YT_Transcript = {
         prompt("✅ Kopiere das Transkript manuell (Strg+C):", text);
       }
     })();
-  }
-};
+  },
 
-// href-Methode analog zum Template
-if (!YT_Transcript.href) {
-  YT_Transcript.href = function (options) {
-    options = options || {};
+  href(options = {}) {
     const {
       encode = true,
       stripComments = true,
@@ -78,8 +77,6 @@ if (!YT_Transcript.href) {
     } = options;
 
     let code = this.run.toString();
-
-    // Nur Funktions-Body extrahieren
     code = code.substring(code.indexOf("{") + 1, code.lastIndexOf("}"));
 
     if (stripComments) {
@@ -101,8 +98,11 @@ if (!YT_Transcript.href) {
     }
 
     return `javascript:${encode ? encodeURIComponent(wrapped) : wrapped}`;
-  };
-}
+  },
 
-// Automatisch im globalen Namespace registrieren
+  toString() {
+    return this.href();
+  }
+};
+
 window.bookmarklets[YT_Transcript.meta.id] = YT_Transcript;
