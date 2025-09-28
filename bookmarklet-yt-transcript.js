@@ -71,3 +71,4 @@ const YouTubeTranscriptBookmarklet = {
     return this.href();
   }
 };
+window.bookmarklets["YT_Transcript"] = YouTubeTranscriptBookmarklet;
