@@ -57,13 +57,45 @@ const YT_Transcript = {
         alert("❌ Transkript ist leer.");
         return;
       }
-
+/*
       try {
         await navigator.clipboard.writeText(text);
         alert("✅ Transkript (mit Zeitstempeln in eckigen Klammern) wurde in die Zwischenablage kopiert.");
       } catch (err) {
         prompt("✅ Kopiere das Transkript manuell (Strg+C):", text);
       }
+*/
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        console.warn("⚠️ Konnte Zwischenablage nicht schreiben:", err);
+        alert("⚠️ Konnte Zwischenablage nicht schreiben. ");
+      }
+      
+      // Hilfsfunktion zur Bereinigung von Dateinamen
+      function sanitizeFilename(name) {
+        return name.replace(/[\\/:*?"<>|]/g, '_');
+      }
+      
+      // Erstelle Dateinamen
+      const videoId = new URLSearchParams(location.search).get("v") || "unknown";
+      const rawTitle = document.title.replace(/ - YouTube$/, "") || "video";
+      const title = sanitizeFilename(rawTitle);
+      const date = new Date().toISOString().slice(0, 10);
+      const filename = `YT_${date}_${videoId}_${title}.txt`;
+      
+      // confirm statt alert
+      const confirmed = confirm("✅ Transkript wurde in die Zwischenablage kopiert.\nMöchtest du es auch als .txt herunterladen?");
+      if (confirmed) {
+        const blob = new Blob([text], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
     })();
   },
 
