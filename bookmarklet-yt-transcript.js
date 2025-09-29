@@ -76,7 +76,12 @@ const YT_Transcript = {
       function sanitizeFilename(name) {
         return name.replace(/[\\/:*?"<>|]/g, '_');
       }
-      
+      if (!document.body) {
+        alert("⚠️ Kein Zugriff auf document.body – Download nicht möglich. (Ggf. aus Console kopieren.)");
+        console.log(text);
+        return;
+      }
+
       // Erstelle Dateinamen
       const videoId = new URLSearchParams(location.search).get("v") || "unknown";
       const rawTitle = document.title.replace(/ - YouTube$/, "") || "video";
@@ -87,13 +92,25 @@ const YT_Transcript = {
       // confirm statt alert
       const confirmed = confirm("✅ Transkript wurde in die Zwischenablage kopiert.\nMöchtest du es auch als .txt herunterladen?");
       if (confirmed) {
-        const blob = new Blob([text], { type: "text/plain" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        try {
+            if (!document.body) throw new Error("Kein <body>-Element gefunden.");
+          
+            const blob = new Blob([text], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+          
+            // Element muss im DOM sein, damit .click() funktioniert
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            console.warn("⚠️ Download fehlgeschlagen:", err);
+            console.log("\n\n"+txt);
+            prompt("⚠️ Download konnte nicht automatisch gestartet werden.\nDu kannst den Text manuell kopieren:", text);
+          }
       }
 
     })();
