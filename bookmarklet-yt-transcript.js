@@ -16,7 +16,7 @@ const YT_Transcript = {
     id: 'YT_Transcript',
     name: 'YouTube Transcript Extractor',
     short: 'YTTranscript',
-    description: 'Extrahiert das Transkript mit Zeitmarken in eckigen Klammern von YouTube und kopiert es in die Zwischenablage.',
+    description: 'Extrahiert das Transkript von YouTube',
     version: '1.0.0',
     author: '',
     site: 'https://www.youtube.com'
@@ -58,6 +58,10 @@ const YT_Transcript = {
         return;
       }
 
+      // Hilfsfunktion zur Bereinigung von Dateinamen
+      function sanitizeFilename(name) {
+        return name.replace(/[\\/:*?"<>|]/g, '_');
+      }
       // Erstelle Dateinamen
       const videoId = new URLSearchParams(location.search).get("v") || "unknown";
       const rawTitle = document.title.replace(/ - YouTube$/, "") || "video";
@@ -82,10 +86,7 @@ const YT_Transcript = {
         alert("⚠️ Konnte Zwischenablage nicht schreiben. ");
       }
       
-      // Hilfsfunktion zur Bereinigung von Dateinamen
-      function sanitizeFilename(name) {
-        return name.replace(/[\\/:*?"<>|]/g, '_');
-      }
+     
       if (!document.body) {
         alert("⚠️ Kein Zugriff auf document.body – Download nicht möglich. (Ggf. aus Console kopieren.)");
         console.log(text);
@@ -99,7 +100,7 @@ const YT_Transcript = {
         try {
             if (!document.body) throw new Error("Kein <body>-Element gefunden.");
           
-            const blob = new Blob([textHead+text], { type: "text/plain" });
+            const blob = new Blob([textHead, text], { type: "text/plain" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
