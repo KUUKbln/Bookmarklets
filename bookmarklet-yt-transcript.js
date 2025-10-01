@@ -24,6 +24,12 @@ const YT_Transcript = {
 
   run() {
     (async function () {
+
+      // Hilfsfunktion zur Bereinigung von Dateinamen
+      function sanitizeFilename(name) {
+        return name.replace(/[\\/:*?"<>|]/g, '_');
+      }
+
       const container = document.querySelector('ytd-transcript-renderer');
       if (!container) {
         alert("❌ Kein Transkript gefunden.");
@@ -32,7 +38,8 @@ const YT_Transcript = {
 
       async function scrollTranscript() {
         let lastHeight = 0;
-        while (container.scrollHeight > lastHeight) {
+        let attempts = 0;
+        while (container.scrollHeight > lastHeight && attempts++ < 30) {
           lastHeight = container.scrollHeight;
           container.scrollTo(0, lastHeight);
           await new Promise(r => setTimeout(r, 400));
@@ -58,10 +65,6 @@ const YT_Transcript = {
         return;
       }
 
-      // Hilfsfunktion zur Bereinigung von Dateinamen
-      function sanitizeFilename(name) {
-        return name.replace(/[\\/:*?"<>|]/g, '_');
-      }
       // Erstelle Dateinamen
       const videoId = new URLSearchParams(location.search).get("v") || "unknown";
       const rawTitle = document.title.replace(/ - YouTube$/, "") || "video";
@@ -69,53 +72,45 @@ const YT_Transcript = {
       const date = new Date().toISOString().slice(0, 10);
       const filename = `YT_${date}_${videoId}_${title}.txt`;
 
-      // Erstelle Kopkommentar mit Metadaten
-      const textHead = "// "+filename+"\n\n";
-/*
+      // Erstelle Kopfkommentar mit Metadaten
+      const textHead = "// " + filename + "\n\n";
+      const fullText = textHead + text;
+
       try {
-        await navigator.clipboard.writeText(text);
-        alert("✅ Transkript (mit Zeitstempeln in eckigen Klammern) wurde in die Zwischenablage kopiert.");
-      } catch (err) {
-        prompt("✅ Kopiere das Transkript manuell (Strg+C):", text);
-      }
-*/
-      try {
-        await navigator.clipboard.writeText(textHead+text);
+        await navigator.clipboard.writeText(fullText);
       } catch (err) {
         console.warn("⚠️ Konnte Zwischenablage nicht schreiben:", err);
         alert("⚠️ Konnte Zwischenablage nicht schreiben. ");
       }
-      
-     
+
       if (!document.body) {
         alert("⚠️ Kein Zugriff auf document.body – Download nicht möglich. (Ggf. aus Console kopieren.)");
-        console.log(text);
+        console.log(fullText);
         return;
       }
 
-      
       // confirm statt alert
       const confirmed = confirm("✅ Transkript wurde in die Zwischenablage kopiert.\nMöchtest du es auch als .txt herunterladen?");
       if (confirmed) {
         try {
-            if (!document.body) throw new Error("Kein <body>-Element gefunden.");
-          
-            const blob = new Blob([textHead, text], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-          
-            // Element muss im DOM sein, damit .click() funktioniert
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          } catch (err) {
-            console.warn("⚠️ Download fehlgeschlagen:", err);
-            console.log("\n\n"+txt);
-            prompt("⚠️ Download konnte nicht automatisch gestartet werden.\nDu kannst den Text manuell kopieren:", text);
-          }
+          if (!document.body) throw new Error("Kein <body>-Element gefunden.");
+
+          const blob = new Blob([fullText], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+
+          // Element muss im DOM sein, damit .click() funktioniert
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.warn("⚠️ Download fehlgeschlagen:", err);
+          console.log("\n\n" + fullText);
+          prompt("⚠️ Download konnte nicht automatisch gestartet werden.\nDu kannst den Text manuell kopieren:", fullText);
+        }
       }
 
     })();
