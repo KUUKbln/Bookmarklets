@@ -26,7 +26,7 @@
  */
 
 (function () {
-  const DEBUG = true;
+  const DEBUG = false;
 
   const instanceId = `bookmarklet_cursor_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
   const overlayId = `overlay_${instanceId}`;
@@ -35,12 +35,16 @@
   const TONE_DURATION = 500;
   const TONE_FREQUENCY = 220;
 
-  let lastButtonCount = 0;
   let dragging = false;
   let moved = false;
   let dragOffset = { x: 0, y: 0 };
+    let pointerOffset = { x: 40, y: 10 };
   let timerId = null;
   let currentCursor = null;
+  let lastClickedButton = null;
+
+  // Neu: Set, um bereits geloggte Buttons zu tracken
+  const loggedButtons = new Set();
 
   function log(...args) {
     if (DEBUG) console.log(`[${instanceId}]`, ...args);
@@ -50,15 +54,19 @@
     if (DEBUG) alert(`[${instanceId}]\n${message}`);
   }
 
+
   const svgString = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 24" style="width:100%; height:100%;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 0 20 24" style="width:100%; height:100%;">
+
+
   <g id="pointer-arrow">
-    <path class="outline" fill="#000" d="M1 3h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v2H9v1h1v2h1v2h-1v1H8v-1H7v-2H6v-2H5v1H4v1H3v1H1"/>
-    <path class="inner" fill="#fff" d="M2 5h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1H8v2h1v2h1v2H8v-2H7v-2H6v-1H5v1H4v1H3v1H2"/>
+    <path class="path-outline" fill="#fff" stroke="none" d="M1 3h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v2H9v1h1v2h1v2h-1v1H8v-1H7v-2H6v-2H5v1H4v1H3v1H1"/>
+    <path class="path-inner" fill="#000" stroke="none" d="M2 5h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1H8v2h1v2h1v2H8v-2H7v-2H6v-1H5v1H4v1H3v1H2"/>
+      
   </g>
   <g id="pointer-hand" transform="translate(-20,0)" style="display: none;">
-    <path class="outline" fill="#000" d="M19 1h2v1h1v4h2v1h3v1h2v1h1v1h1v7h-1v3h-1v3H19v-3h-1v-2h-1v-2h-1v-2h-1v-1h-1v-3h3v1h1V2h1"/>
-    <path class="inner" fill="#fff" d="M21 2v9h1V7h2v4h1V8h2v4h1V9h1v1h1v7h-1v3h-1v2h-8v-2h-1v-2h-1v-2h-1v-2h-1v-1h-1v-2h2v1h1v1h1V2"/>
+    <path class="path-outline" fill="#000" stroke="none" d="M19 1h2v1h1v4h2v1h3v1h2v1h1v1h1v7h-1v3h-1v3H19v-3h-1v-2h-1v-2h-1v-2h-1v-1h-1v-3h3v1h1V2h1"/>
+    <path class="path-inner" fill="#fff" stroke="none"  d="M21 2v9h1V7h2v4h1V8h2v4h1V9h1v1h1v7h-1v3h-1v2h-8v-2h-1v-2h-1v-2h-1v-2h-1v-1h-1v-2h2v1h1v1h1V2"/>
   </g>
 </svg>`;
 
@@ -73,13 +81,18 @@
     overlay.style.width = '128px';
     overlay.style.height = '96px';
     overlay.style.userSelect = 'none';
+    overlay.style.background = 'none';  // <-- hier transparent statt weiß
+    overlay.style.border = 'none';             // kein Rahmen
+    overlay.style.outline = 'none';            // kein Outline
     overlay.style.transform = 'scale(1)';
     overlay.innerHTML = svgString;
+    //overlay.style.shapeRenderer= "geometricPrecision";
     document.body.appendChild(overlay);
 
     const svg = overlay.querySelector('svg');
     svg.id = svgId;
     svg.style.pointerEvents = 'none'; // Mausereignisse durchreichen
+    svg.style.shapeRenderer= "pixelated";
     currentCursor = overlay;
 
     overlay.addEventListener('mousedown', startDrag);
@@ -110,8 +123,12 @@
       const y = ev.clientY || ev.touches[0].clientY;
       currentCursor.style.left = `${x - dragOffset.x}px`;
       currentCursor.style.top = `${y - dragOffset.y}px`;
+      let pos = getCursorPosition();
+          if (DEBUG) console.log(`Cursor moved to x:${pos.x}px, y:${pos.y}px`);
+
       moved = true;
     }
+
 
     function onEnd() {
       dragging = false;
@@ -127,12 +144,15 @@
     document.addEventListener('touchend', onEnd);
   }
 
+
+
   function getCursorPosition() {
     const rect = currentCursor.getBoundingClientRect();
     return {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
+      x: rect.left + pointerOffset.x,  // 10px von links
+      y: rect.top + pointerOffset.y,   // 10px von oben
     };
+   
   }
 
   function switchCursorMode(toHand = true) {
@@ -161,14 +181,26 @@
 
   function checkButtons() {
     const buttons = Array.from(document.querySelectorAll('button'));
-    if (buttons.length !== lastButtonCount) {
-      lastButtonCount = buttons.length;
-    }
 
     const pos = getCursorPosition();
 
-    for (const button of buttons) {
+    buttons.forEach((button) => {
       const rect = button.getBoundingClientRect();
+
+      // Neu: Button-Position einmalig loggen im Debug-Modus
+      if (DEBUG && !loggedButtons.has(button)) {
+        loggedButtons.add(button);
+        log(
+          `Neuer Button entdeckt! Screen-Position: left=${rect.left.toFixed(
+            0
+          )}, top=${rect.top.toFixed(0)}, right=${rect.right.toFixed(
+            0
+          )}, bottom=${rect.bottom.toFixed(0)}, width=${rect.width.toFixed(
+            0
+          )}, height=${rect.height.toFixed(0)}`
+        );
+      }
+
       const inside =
         pos.x >= rect.left &&
         pos.x <= rect.right &&
@@ -176,30 +208,36 @@
         pos.y <= rect.bottom;
 
       if (inside) {
-        log(`Button triggered by ${instanceId}`);
-        if (DEBUG) {
-          alertDebug(
-            `Button triggered!\nCursor: (${pos.x.toFixed(0)}, ${pos.y.toFixed(
-              0
-            )})\nButton: (${rect.left.toFixed(0)}, ${rect.top.toFixed(
-              0
-            )})\nText: ${button.innerText.trim()}`
-          );
+        log(`Button ausgelöst von Cursor ${instanceId}`);
+        alertDebug(
+          `Button ausgelöst!\nCursor: (${pos.x.toFixed(0)}, ${pos.y.toFixed(
+            0
+          )})\nButton: (${rect.left.toFixed(0)}, ${rect.top.toFixed(
+            0
+          )})\nText: ${button.innerText.trim()}`
+        );
+        if(lastClickedButton != button){
+            button.click();
+            
+            switchCursorMode(true);
+            setTimeout(() => switchCursorMode(false), 1000);
+            playTone();
+            lastClickedButton = button;
+        }else{
+            console.log("NICHT NOCHMAL "+button.id);
         }
-        button.click();
-        playTone();
-        switchCursorMode(true);
-        setTimeout(() => switchCursorMode(false), 1000);
-        break;
+        
+        
+        
       }
-    }
+    });
   }
 
   function removeInstance() {
     if (timerId) clearInterval(timerId);
     const overlay = document.getElementById(overlayId);
     if (overlay) overlay.remove();
-    log('Instance removed cleanly.');
+    log('Instanz wurde entfernt.');
   }
 
   // INIT
